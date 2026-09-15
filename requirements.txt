@@ -1,0 +1,5 @@
+idc-index>=0.12
+pydicom>=3.0
+numpy>=1.26
+pillow>=10
+pandas>=2.0

@@ -1,0 +1,25 @@
+# Downloaded scans and exported volumes — fetched on demand, never committed
+data/
+viewer/public/data/
+
+# Local archives / backups
+*.rar
+*.zip
+*.7z
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Node
+viewer/node_modules/
+viewer/dist/
+*.tsbuildinfo
+
+# Editors / OS / local tool settings
+.claude/settings.local.json
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
