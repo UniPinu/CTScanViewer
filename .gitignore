@@ -1,6 +1,9 @@
-# Downloaded scans and exported volumes — fetched on demand, never committed
+# Downloaded scans, derived volumes and run outputs — all reproducible, never committed
 data/
 viewer/public/data/
+results/
+reports/
+models/
 
 # Local archives / backups
 *.rar
@@ -11,6 +14,8 @@ viewer/public/data/
 __pycache__/
 *.pyc
 .venv/
+.venv-sybil/
+.pytest_cache/
 
 # Node
 viewer/node_modules/

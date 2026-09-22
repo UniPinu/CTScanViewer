@@ -34,3 +34,35 @@ export function windowToImageData(slice: Slice, win: HUWindow, out: ImageData): 
     px[i] = 0xff000000 | (g << 16) | (g << 8) | g;
   }
 }
+
+/**
+ * Composite a coloured overlay onto an already-windowed greyscale ImageData.
+ *
+ * Done in one pass over the pixels rather than with a second canvas and a CSS
+ * blend mode: the overlay has to line up exactly with the grey underneath at
+ * every zoom level, and a screen blend would wash out the lung parenchyma the
+ * reader is trying to judge. Alpha is scaled by the overlay's own intensity, so
+ * weak signal stays faint instead of painting a flat wash of colour.
+ */
+export function blendOverlay(
+  out: ImageData,
+  overlay: { data: Uint8Array; width: number; height: number },
+  colour: [number, number, number],
+  opacity: number,
+): void {
+  if (opacity <= 0) return;
+  if (overlay.width * overlay.height !== out.width * out.height) return;
+
+  const px = out.data;
+  const [r, g, b] = colour;
+  const src = overlay.data;
+  for (let i = 0; i < src.length; i++) {
+    const v = src[i];
+    if (v === 0) continue;
+    const a = (v / 255) * opacity;
+    const o = i * 4;
+    px[o] = px[o] + (r - px[o]) * a;
+    px[o + 1] = px[o + 1] + (g - px[o + 1]) * a;
+    px[o + 2] = px[o + 2] + (b - px[o + 2]) * a;
+  }
+}

@@ -1,0 +1,33 @@
+# Sybil's environment — SEPARATE from requirements.txt, and necessarily so.
+#
+# Sybil declares python_requires = ">=3.8,<3.11" and pins torch 1.13.1,
+# numpy 1.24.1 and pydicom 2.3.0. The pipeline runs on Python 3.13 with numpy 2.x
+# and pydicom 3.x. The two cannot share an interpreter, so ml/risk.py calls
+# ml/sybil_runner.py through this one and reads JSON back.
+#
+# INSTALL FROM GIT, NOT FROM PyPI. `pip install sybil` resolves to an unrelated
+# documentation-testing package of the same name — it installs cleanly, imports
+# cleanly, and has no Serie, Sybil.predict or visualize_attentions in it. The
+# lung model has never been published to PyPI under that name, so the repository
+# is the only correct source.
+#
+# Set it up (Windows; use bin/ instead of Scripts/ on POSIX):
+#
+#     py -3.10 -m venv .venv-sybil
+#     .venv-sybil/Scripts/pip install -r requirements-sybil.txt
+#
+# ml/risk.py finds .venv-sybil automatically. To put it elsewhere, point
+# $SYBIL_PYTHON at that interpreter. Check it with:
+#
+#     .venv/Scripts/python -m ml.risk --check
+#
+# The pretrained ensemble weights (~1 GB) download on first use.
+#
+# On Windows this installs CPU-only torch: Sybil's marker for the CUDA build is
+# `platform_machine == "x86_64"`, and Windows reports "AMD64", so the marker
+# never matches. For GPU inference, follow up with
+#
+#     .venv-sybil/Scripts/pip install torch==1.13.1+cu117 torchvision==0.14.1+cu117 \
+#         --index-url https://download.pytorch.org/whl/cu117
+
+git+https://github.com/reginabarzilaygroup/Sybil.git

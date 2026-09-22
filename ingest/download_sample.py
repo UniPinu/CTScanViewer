@@ -6,7 +6,7 @@ contains SEG (segmentation) and SR (structured report) series, which are
 skipped by default so the sample is made up of actual CT scans.
 
 Usage:
-    python download_sample.py                     # first 5 CT series -> data/sample
+    python -m ingest.download_sample              # first 5 CT series -> data/sample
     python download_sample.py -n 10               # first 10 CT series
     python download_sample.py --random --seed 42  # 5 random CT series (reproducible)
     python download_sample.py --modality all      # don't filter by modality
@@ -24,7 +24,11 @@ from pathlib import Path
 import pandas as pd
 from idc_index import IDCClient
 
-DEFAULT_MANIFEST = Path(__file__).with_name("manifest_20260915_004931_aws.s5cmd")
+from core import paths
+
+# The manifest lives at the repo root, not beside this file — resolve it through
+# core.paths so moving this module into ingest/ cannot break it again.
+DEFAULT_MANIFEST = paths.default_manifest()
 UUID_RE = re.compile(r"s3://[^/]+/([0-9a-f-]{36})/")
 
 
@@ -32,7 +36,7 @@ def parse_args() -> argparse.Namespace:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST, help="s5cmd manifest from IDC")
     p.add_argument("-n", "--count", type=int, default=5, help="number of series to download (default: 5)")
-    p.add_argument("--out", type=Path, default=Path("data/sample"), help="download directory (default: data/sample)")
+    p.add_argument("--out", type=Path, default=paths.SAMPLE_DIR, help=f"download directory (default: {paths.SAMPLE_DIR})")
     p.add_argument("--modality", default="CT", help="only keep series of this modality, or 'all' (default: CT)")
     p.add_argument("--random", action="store_true", help="pick a random sample instead of the first N lines")
     p.add_argument("--seed", type=int, default=0, help="RNG seed used with --random (default: 0)")
@@ -63,7 +67,7 @@ def lookup_series(client: IDCClient, cp_lines: list[str]) -> pd.DataFrame:
 
 def main() -> None:
     args = parse_args()
-    if not args.manifest.exists():
+    if args.manifest is None or not args.manifest.exists():
         raise SystemExit(f"Manifest not found: {args.manifest}")
 
     header, cp_lines = split_manifest(args.manifest)
@@ -106,7 +110,7 @@ def main() -> None:
     print("Done.")
 
     if args.png:
-        from dicom_to_png import WINDOWS, convert_dir
+        from preprocess.dicom_to_png import WINDOWS, convert_dir
 
         out_png = args.out.with_name(args.out.name + "_png")
         n = convert_dir(args.out, out_png, WINDOWS["lung"], bits=8, min_slices=2)

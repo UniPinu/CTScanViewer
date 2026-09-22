@@ -5,6 +5,8 @@ export interface SeriesMeta {
   studyDate: string;
   /** NLST screening year: 0, 1 or 2. */
   visit: number | null;
+  /** "T0" | "T1" | "T2" — the round label used throughout the pipeline. */
+  round: string | null;
   kernel: string;
   kernelStyle: "sharp" | "smooth" | "other";
   manufacturer: string;
@@ -16,6 +18,13 @@ export interface SeriesMeta {
   spacing: [number, number, number];
   huRange: [number, number];
   file: string;
+  seriesUid: string;
+  /** Which split this patient's scans belong to, so the UI can say so. */
+  split: "train" | "val" | "test" | null;
+  /** Whether the stored slice order had to be reversed (see preprocess/volume.py). */
+  flippedForSybil: boolean;
+  lungVolumeMl?: number;
+  maskFile?: string;
 }
 
 /** A loaded series: metadata plus the raw Hounsfield-unit voxels, [slice][row][col]. */

@@ -1,5 +1,26 @@
+# Main pipeline environment (Python 3.11+; developed on 3.13).
+#
+# Note what is NOT here: Sybil. It pins python<3.11, torch 1.13 and numpy 1.24,
+# which cannot coexist with this environment, so it lives in its own virtualenv
+# and is invoked as a subprocess. See requirements-sybil.txt and ml/risk.py.
+
+# Cohort: the IDC metadata index, queried locally with SQL. No imaging downloaded.
 idc-index>=0.12
+duckdb>=1.0
+pandas>=2.0
+pyarrow>=16
+
+# Imaging: DICOM in, Hounsfield volumes out; SimpleITK does the registration.
 pydicom>=3.0
 numpy>=1.26
 pillow>=10
-pandas>=2.0
+SimpleITK>=2.4
+scipy>=1.13
+
+# Metrics. The concordance index is implemented in ml/evaluate.py rather than
+# pulling in lifelines for twenty lines.
+scikit-learn>=1.5
+
+# Service
+fastapi>=0.115
+uvicorn[standard]>=0.30
